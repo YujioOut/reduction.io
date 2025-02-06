@@ -1,5 +1,5 @@
 import { useState } from "react";
-import "./App.css"; // Import the CSS file
+import "./App.css";
 
 export default function App() {
   const [inputText, setInputText] = useState("");
@@ -10,29 +10,32 @@ export default function App() {
     const lines = inputText.split("\n").map((line) =>
       line.split(/(\s+)/).map((word) => ({
         original: word,
-        reduced: word.trim() ? word : " ",
-        isReduced: false,
+        display: word.trim() ? word : " ", // Preserve spaces
+        clickState: 0, // 0 = full, 1 = reduced, 2 = hidden checkbox, 3 = full again
       }))
     );
     setProcessedLines(lines);
   };
 
-  const toggleReduction = (lineIndex, wordIndex) => {
+  const cycleWordState = (lineIndex, wordIndex) => {
     setProcessedLines((prevLines) =>
       prevLines.map((line, lIndex) =>
         lIndex === lineIndex
-          ? line.map((word, wIndex) =>
-              wIndex === wordIndex
-                ? {
-                    ...word,
-                    reduced:
-                      word.isReduced || !word.original.trim()
-                        ? word.original
-                        : word.original[0] + " ",
-                    isReduced: !word.isReduced && word.original.trim() !== "",
-                  }
-                : word
-            )
+          ? line.map((word, wIndex) => {
+              if (wIndex === wordIndex) {
+                let newState = (word.clickState + 1) % 4;
+                let newDisplay =
+                  newState === 1
+                    ? word.original[0]
+                    : newState === 2
+                    ? "⬜"
+                    : newState === 3
+                    ? word.original
+                    : word.original;
+                return { ...word, display: newDisplay, clickState: newState };
+              }
+              return word;
+            })
           : line
       )
     );
@@ -63,9 +66,9 @@ export default function App() {
                 <span
                   key={wordIndex}
                   className="word"
-                  onClick={() => toggleReduction(lineIndex, wordIndex)}
+                  onClick={() => cycleWordState(lineIndex, wordIndex)}
                 >
-                  {word.reduced + (word.original.trim() ? " " : "")}
+                  {word.display + (word.original.trim() ? " " : "")}
                 </span>
               ))}
               <br />
