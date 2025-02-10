@@ -83,3 +83,50 @@
   height: 250px;
   border-radius: 8px;
 }
+
+.add-song-button {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 10px;
+  height: 22px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+.add-song-button:hover {
+  background-color: #218838;
+  transform: scale(1.1);
+}
+.repertoire-container ul {
+  list-style: none; /* Removes default bullet points */
+  padding: 0;
+}
+
+.repertoire-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 0;
+}
+
+.delete-button {
+  color: red;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.delete-button:hover {
+  transform: scale(1.2);
+  color: darkred;
+}

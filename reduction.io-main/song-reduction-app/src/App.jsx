@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./App.css";
 
 export default function App() {
@@ -6,6 +6,19 @@ export default function App() {
   const [processedLines, setProcessedLines] = useState([]);
   const [youtubeUrl, setYoutubeUrl] = useState("");
   const [repertoire, setRepertoire] = useState([]);
+
+  useEffect(() => {
+    const savedRepertoire = localStorage.getItem("repertoire");
+    if (savedRepertoire) {
+      setRepertoire(JSON.parse(savedRepertoire));
+    }
+  }, []);
+
+  useEffect(() => {
+    if (repertoire.length > 0) {
+      localStorage.setItem("repertoire", JSON.stringify(repertoire));
+    }
+  }, [repertoire]);
 
   const processLyrics = () => {
     const lines = inputText.split("\n").map((line) =>
@@ -74,6 +87,20 @@ export default function App() {
     });
   };
 
+  const deleteSong = (index) => {
+    setRepertoire((prevRepertoire) => {
+      const updatedRepertoire = prevRepertoire.filter((_, i) => i !== index);
+      localStorage.setItem("repertoire", JSON.stringify(updatedRepertoire));
+      return updatedRepertoire;
+    });
+  };
+
+  const addNewSong = () => {
+    setInputText("");
+    setProcessedLines([]);
+    setYoutubeUrl("");
+  };
+
   const loadSong = (song) => {
     setInputText(song.lyrics);
     setProcessedLines(song.processed);
@@ -139,7 +166,13 @@ export default function App() {
         ) : (
           <ul>
             {repertoire.map((song, index) => (
-              <li key={index}>
+              <li key={index} className="repertoire-item">
+                <span
+                  onClick={() => deleteSong(index)}
+                  className="delete-button"
+                >
+                  ✖
+                </span>
                 <button onClick={() => loadSong(song)}>
                   🎶 {song.lyrics.split("\n")[0]}
                 </button>
@@ -147,6 +180,11 @@ export default function App() {
             ))}
           </ul>
         )}
+        <div className="add-song-container">
+          <button onClick={addNewSong} className="add-song-button">
+            +
+          </button>
+        </div>
       </div>
     </div>
   );
