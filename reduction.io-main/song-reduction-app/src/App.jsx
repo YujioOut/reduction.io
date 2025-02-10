@@ -5,13 +5,14 @@ export default function App() {
   const [inputText, setInputText] = useState("");
   const [processedLines, setProcessedLines] = useState([]);
   const [youtubeUrl, setYoutubeUrl] = useState("");
+  const [repertoire, setRepertoire] = useState([]);
 
   const processLyrics = () => {
     const lines = inputText.split("\n").map((line) =>
       line.split(/(\s+)/).map((word) => ({
         original: word,
-        display: word.trim() ? word : " ", // Preserve spaces
-        clickState: 0, // 0 = full, 1 = reduced, 2 = hidden checkbox, 3 = full again
+        display: word.trim() ? word : " ",
+        clickState: 0,
       }))
     );
     setProcessedLines(lines);
@@ -46,9 +47,41 @@ export default function App() {
     return match ? match[1] : "";
   };
 
+  const saveToRepertoire = () => {
+    if (!inputText.trim()) return;
+
+    const songTitle = inputText.split("\n")[0];
+    const newSong = {
+      lyrics: inputText,
+      processed: processedLines,
+      youtubeUrl,
+    };
+
+    setRepertoire((prevRepertoire) => {
+      const existingIndex = prevRepertoire.findIndex(
+        (song) => song.lyrics.split("\n")[0] === songTitle
+      );
+
+      if (existingIndex !== -1) {
+        // Update existing song
+        const updatedRepertoire = [...prevRepertoire];
+        updatedRepertoire[existingIndex] = newSong;
+        return updatedRepertoire;
+      }
+
+      // Add new song
+      return [...prevRepertoire, newSong];
+    });
+  };
+
+  const loadSong = (song) => {
+    setInputText(song.lyrics);
+    setProcessedLines(song.processed);
+    setYoutubeUrl(song.youtubeUrl);
+  };
+
   return (
     <div className="app-container">
-      {/* Lyrics Section */}
       <div className="lyrics-container">
         <h1>🎵 Song Reduction App</h1>
         <textarea
@@ -59,6 +92,7 @@ export default function App() {
           onChange={(e) => setInputText(e.target.value)}
         ></textarea>
         <button onClick={processLyrics}>Process</button>
+        <button onClick={saveToRepertoire}>Save to Repertoire</button>
         <div>
           {processedLines.map((line, lineIndex) => (
             <div key={lineIndex}>
@@ -77,7 +111,6 @@ export default function App() {
         </div>
       </div>
 
-      {/* YouTube Video Embed Section */}
       <div className="youtube-container">
         <h2>🎥 YouTube Video</h2>
         <input
@@ -96,6 +129,23 @@ export default function App() {
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
           ></iframe>
+        )}
+      </div>
+
+      <div className="repertoire-container">
+        <h2>📜 My Repertoire</h2>
+        {repertoire.length === 0 ? (
+          <p>No saved songs yet.</p>
+        ) : (
+          <ul>
+            {repertoire.map((song, index) => (
+              <li key={index}>
+                <button onClick={() => loadSong(song)}>
+                  🎶 {song.lyrics.split("\n")[0]}
+                </button>
+              </li>
+            ))}
+          </ul>
         )}
       </div>
     </div>
